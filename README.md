@@ -1,3 +1,4 @@
+# Proyecto Final de Programación Web I
 # Sistema de Gestión de Laboratorios
 
 Este proyecto es un sistema diseñado para la gestión de laboratorios. Permite a los usuarios autenticarse, crear y gestionar reservas de equipos, y realizar búsquedas de los elementos registrados en el sistema. Incluye funcionalidades modernas de autenticación y seguridad.
@@ -30,9 +31,11 @@ Este proyecto es un sistema diseñado para la gestión de laboratorios. Permite 
 
 ## Tecnologías Utilizadas
 - **Backend**: Node.js
-- **Base de Datos**: MongoDB con Mongoose
+-**Postman**
+- **Base de Datos**: MongoDB
 - **Autenticación**: JWT (JSON Web Tokens)
 - **Frontend**: HTML, CSS, javascript
+![Diagrama de Componentes](https://github.com/user-attachments/assets/ceb2a654-76d8-41ee-a6de-ad786a47d66c)
 
 ---
 
