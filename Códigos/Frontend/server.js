@@ -4,31 +4,26 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 
-
 const app = express();
 const PORT = 5000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-
 app.use(express.static(path.join(__dirname)));
 
 // Conexión a MongoDB
 mongoose.connect('mongodb://localhost:27017/Laboratorio')
-.then(() => console.log('Conectado a MongoDB'))
-.catch(err => console.error(err));
+    .then(() => console.log('Conectado a MongoDB'))
+    .catch(err => console.error(err));
 
-// Modelo MongoDB para Items
+// Modelos MongoDB
 const ItemSchema = new mongoose.Schema({
     nombre: String,
     tipo: String,
     estado: String,
 });
 
-const Item = mongoose.model('Item', ItemSchema);
-
-// Modelo MongoDB para Reservas
 const ReservaSchema = new mongoose.Schema({
     equipo: String,
     fecha: String,
@@ -36,12 +31,20 @@ const ReservaSchema = new mongoose.Schema({
     horaFin: String,
 });
 
-const Reserva = mongoose.model('Reserva', ReservaSchema);
+const UsuarioSchema = new mongoose.Schema({
+    nombre: String,
+    email: String,
+    password: String,
+});
 
+const Item = mongoose.model('Item', ItemSchema);
+const Reserva = mongoose.model('Reserva', ReservaSchema);
+const Usuario = mongoose.model('Usuario', UsuarioSchema);
+
+// Rutas principales
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
-  });
-  
+});
 
 // Rutas para Items
 app.get('/items', async (req, res) => {
@@ -92,5 +95,31 @@ app.delete('/reservas/:id', async (req, res) => {
     }
 });
 
+// Rutas para Usuarios
+app.get('/usuarios', async (req, res) => {
+    try {
+        const usuarios = await Usuario.find();
+        res.json(usuarios);
+    } catch (err) {
+        res.status(500).json({ message: 'Error al obtener los usuarios' });
+    }
+});
+// Ruta para eliminar un usuario por nombre
+app.delete('/usuarios/:nombre', async (req, res) => {
+    try {
+        const { nombre } = req.params;
+        const usuarioEliminado = await Usuario.findOneAndDelete({ nombre: nombre });
+
+        if (!usuarioEliminado) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        res.json({ message: 'Usuario eliminado', usuario: usuarioEliminado });
+    } catch (err) {
+        res.status(500).json({ message: 'Error al eliminar el usuario', error: err.message });
+    }
+});
+
+
 // Iniciar el servidor
-app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:5000`));
+app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
