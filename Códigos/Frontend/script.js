@@ -101,7 +101,7 @@ reservationForm.addEventListener("submit", (e) => {
     reservations.push({ room, date });
     localStorage.setItem("reservations", JSON.stringify(reservations));
     updateReservationList();
-    alert(`Reserva añadida para el aula "${room}" el ${date}.`);
+    alert(`Reserva añadida para el sala "${room}" el ${date}.`);
 });
 
 // Actualizar lista de reservas
