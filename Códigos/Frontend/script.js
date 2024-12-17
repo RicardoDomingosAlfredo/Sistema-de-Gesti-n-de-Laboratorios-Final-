@@ -75,7 +75,7 @@ roomForm.addEventListener("submit", (e) => {
     localStorage.setItem("rooms", JSON.stringify(rooms));
     updateRoomList();
     updateRoomSelect();
-    alert(`Sala"${roomName}" registrada con materiales: ${roomMaterials}.`);
+    alert(`Sala"${roomName}" registrada con material: ${roomMaterials}.`);
 });
 
 // Actualizar la lista de Salas
