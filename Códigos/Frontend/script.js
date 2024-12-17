@@ -70,7 +70,7 @@ roomForm.addEventListener("submit", (e) => {
         alert("El sala ya está registrada.");
         return;
     }
-
+   //localStorage para almacenar los datos de usuarios, salas y reservas, de modo que los datos persisten incluso después de cerrar el navegador.
     rooms.push({ name: roomName, materials: roomMaterials });
     localStorage.setItem("rooms", JSON.stringify(rooms));
     updateRoomList();

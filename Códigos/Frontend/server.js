@@ -3,6 +3,12 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { body, validationResult } = require('express-validator');
+const csrf = require('csurf');
+const https = require('https');
+const fs = require('fs');
 
 const app = express();
 const PORT = 5000;
@@ -10,14 +16,18 @@ const PORT = 5000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Protección CSRF
+const csrfProtection = csrf({ cookie: true });
+app.use(csrfProtection);
 
 // Conexión a MongoDB
 mongoose.connect('mongodb://localhost:27017/Laboratorio')
     .then(() => console.log('Conectado a MongoDB'))
     .catch(err => console.error(err));
 
-// Modelos MongoDB(Materiales del Laboratorio)
+// Modelos MongoDB (Materiales del Laboratorio)
 const ItemSchema = new mongoose.Schema({
     nombre: String,
     tipo: String,
@@ -37,16 +47,24 @@ const UsuarioSchema = new mongoose.Schema({
     password: String,
 });
 
+UsuarioSchema.pre('save', async function (next) {
+    if (this.isModified('password')) {
+        const salt = await bcrypt.genSalt(10); // Genera un salt
+        this.password = await bcrypt.hash(this.password, salt); // Hashea la contraseña
+    }
+    next();
+});
+
 const Item = mongoose.model('Item', ItemSchema);
 const Reserva = mongoose.model('Reserva', ReservaSchema);
 const Usuario = mongoose.model('Usuario', UsuarioSchema);
 
-// Rutas principales
+// Ruta principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Rutas para Items/Materiales (Laboratorios)
+// Rutas para Items/Materiales
 app.get('/items', async (req, res) => {
     try {
         const items = await Item.find();
@@ -91,7 +109,7 @@ app.get('/reservas', async (req, res) => {
     }
 });
 
-app.post('/reservas', async (req, res) => {
+app.post('/reservas', csrfProtection, async (req, res) => {
     try {
         const nuevaReserva = new Reserva(req.body);
         await nuevaReserva.save();
@@ -120,8 +138,16 @@ app.get('/usuarios', async (req, res) => {
     }
 });
 
-// Ruta para crear un usuario 
-app.post('/usuarios', async (req, res) => {
+// Ruta para crear un usuario
+app.post('/usuarios', [
+    body('email').isEmail().withMessage('Debe ser un correo electrónico válido'),
+    body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const newUser = new Usuario(req.body);
         await newUser.save();
@@ -131,21 +157,63 @@ app.post('/usuarios', async (req, res) => {
     }
 });
 
-// Ruta para eliminar un usuario por nombre 
-app.delete('/usuarios/:nombre', async (req, res) => {
-    try {
-        const { nombre } = req.params;
-        const usuarioEliminado = await Usuario.findOneAndDelete({ nombre: nombre });
+// Ruta para login (Generación de JWT)
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
 
-        if (!usuarioEliminado) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
+    const user = await Usuario.findOne({ email });
 
-        res.json({ message: 'Usuario eliminado', usuario: usuarioEliminado });
-    } catch (err) {
-        res.status(500).json({ message: 'Error al eliminar el usuario', error: err.message });
+    if (user && await bcrypt.compare(password, user.password)) {
+        // Generar un token JWT
+        const token = jwt.sign({ userId: user._id }, 'secret_key', { expiresIn: '1h' });
+        res.json({ message: 'Login exitoso', token });
+    } else {
+        res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
     }
 });
 
-// Iniciar el servidor
-app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
+// Middleware de autenticación con JWT
+const verifyToken = (req, res, next) => {
+    const token = req.headers['authorization']?.split(' ')[1]; // Obtener el token del header
+
+    if (!token) {
+        return res.status(403).json({ message: 'Token no proporcionado' });
+    }
+
+    jwt.verify(token, 'secret_key', (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'Token inválido' });
+        }
+        req.userId = decoded.userId; // Agregar el userId al objeto de la solicitud
+        next();
+    });
+};
+
+// Ruta protegida de ejemplo
+app.get('/items/protegidos', verifyToken, async (req, res) => {
+    try {
+        const items = await Item.find();
+        res.json(items);
+    } catch (err) {
+        res.status(500).json({ message: 'Error al obtener los items protegidos' });
+    }
+});
+
+// Configuración de HTTPS (si tienes los archivos de certificado)
+const useHttps = false; // Cambia esto a `true` si tienes los certificados SSL
+
+if (useHttps) {
+    const options = {
+        key: fs.readFileSync(path.join(__dirname, 'private-key.pem')),
+        cert: fs.readFileSync(path.join(__dirname, 'certificate.pem'))
+    };
+
+    https.createServer(options, app).listen(PORT, () => {
+        console.log(`Servidor HTTPS corriendo en https://localhost:${PORT}`);
+    });
+} else {
+    // Si no usas HTTPS, usa HTTP
+    app.listen(PORT, () => {
+        console.log(`Servidor HTTP corriendo en http://localhost:${PORT}`);
+    });
+}
