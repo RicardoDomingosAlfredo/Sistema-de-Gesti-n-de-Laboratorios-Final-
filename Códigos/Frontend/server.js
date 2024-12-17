@@ -46,7 +46,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Rutas para Items
+// Rutas para Items (Laboratorios)
 app.get('/items', async (req, res) => {
     try {
         const items = await Item.find();
@@ -63,6 +63,21 @@ app.post('/items', async (req, res) => {
         res.json(newItem);
     } catch (err) {
         res.status(500).json({ message: 'Error al crear el item' });
+    }
+});
+
+app.delete('/items/:nombre', async (req, res) => {
+    try {
+        const { nombre } = req.params;
+        const itemEliminado = await Item.findOneAndDelete({ nombre: nombre });
+
+        if (!itemEliminado) {
+            return res.status(404).json({ message: 'Item no encontrado' });
+        }
+
+        res.json({ message: 'Item eliminado', item: itemEliminado });
+    } catch (err) {
+        res.status(500).json({ message: 'Error al eliminar el item', error: err.message });
     }
 });
 
@@ -104,7 +119,19 @@ app.get('/usuarios', async (req, res) => {
         res.status(500).json({ message: 'Error al obtener los usuarios' });
     }
 });
-// Ruta para eliminar un usuario por nombre
+
+// Ruta para crear un usuario (POST)
+app.post('/usuarios', async (req, res) => {
+    try {
+        const newUser = new Usuario(req.body);
+        await newUser.save();
+        res.json(newUser);
+    } catch (err) {
+        res.status(500).json({ message: 'Error al crear el usuario' });
+    }
+});
+
+// Ruta para eliminar un usuario por nombre (DELETE)
 app.delete('/usuarios/:nombre', async (req, res) => {
     try {
         const { nombre } = req.params;
@@ -119,7 +146,6 @@ app.delete('/usuarios/:nombre', async (req, res) => {
         res.status(500).json({ message: 'Error al eliminar el usuario', error: err.message });
     }
 });
-
 
 // Iniciar el servidor
 app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
