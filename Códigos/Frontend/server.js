@@ -17,7 +17,7 @@ mongoose.connect('mongodb://localhost:27017/Laboratorio')
     .then(() => console.log('Conectado a MongoDB'))
     .catch(err => console.error(err));
 
-// Modelos MongoDB
+// Modelos MongoDB(Materiales del Laboratorio)
 const ItemSchema = new mongoose.Schema({
     nombre: String,
     tipo: String,
@@ -46,7 +46,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Rutas para Items (Laboratorios)
+// Rutas para Items/Materiales (Laboratorios)
 app.get('/items', async (req, res) => {
     try {
         const items = await Item.find();
@@ -120,7 +120,7 @@ app.get('/usuarios', async (req, res) => {
     }
 });
 
-// Ruta para crear un usuario (POST)
+// Ruta para crear un usuario 
 app.post('/usuarios', async (req, res) => {
     try {
         const newUser = new Usuario(req.body);
@@ -131,7 +131,7 @@ app.post('/usuarios', async (req, res) => {
     }
 });
 
-// Ruta para eliminar un usuario por nombre (DELETE)
+// Ruta para eliminar un usuario por nombre 
 app.delete('/usuarios/:nombre', async (req, res) => {
     try {
         const { nombre } = req.params;
