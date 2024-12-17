@@ -1,0 +1,26 @@
+@startuml
+actor Cliente as C
+entity "Servidor API" as S
+database "MongoDB" as DB
+
+C -> S : Enviar solicitud (GET, POST, PUT, DELETE)
+S -> DB : Consultar/Modificar datos
+DB --> S : Respuesta con datos
+S --> C : Respuesta de la API (JSON)
+
+note right of C
+  El cliente (Postman) envía
+  solicitudes HTTP a la API.
+end note
+
+note right of S
+  El servidor recibe las solicitudes,
+  interactúa con la base de datos
+  y devuelve la respuesta al cliente.
+end note
+
+note right of DB
+  MongoDB almacena y recupera
+  datos en formato JSON.
+end note
+@enduml
