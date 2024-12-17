@@ -184,12 +184,12 @@ const verifyToken = (req, res, next) => {
         if (err) {
             return res.status(401).json({ message: 'Token inválido' });
         }
-        req.userId = decoded.userId; // Agregar el userId al objeto de la solicitud
+        req.userId = decoded.userId; 
         next();
     });
 };
 
-// Ruta protegida de ejemplo
+// Ruta protegida 
 app.get('/items/protegidos', verifyToken, async (req, res) => {
     try {
         const items = await Item.find();
