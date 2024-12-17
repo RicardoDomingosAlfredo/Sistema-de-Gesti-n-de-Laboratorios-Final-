@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Laboratorio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Pantalla de Login -->
+    <div id="login-screen" class="container">
+        <h1>Iniciar Sesión</h1>
+        <form id="login-form">
+            <label for="username">Usuario:</label>
+            <input type="text" id="username" placeholder="Usuario" required>
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+        <button onclick="showScreen('register-screen')">Crear Cuenta</button>
+    </div>
+
+    <!-- Pantalla de Registro -->
+    <div id="register-screen" class="container hidden">
+        <h1>Registrar Usuario</h1>
+        <form id="register-form">
+            <label for="reg-username">Usuario:</label>
+            <input type="text" id="reg-username" placeholder="Nuevo usuario" required>
+            <label for="reg-password">Contraseña:</label>
+            <input type="password" id="reg-password" placeholder="Nueva contraseña" required>
+            <button type="submit">Registrar</button>
+        </form>
+        <button onclick="showScreen('login-screen')">Volver a Iniciar Sesión</button>
+    </div>
+
+    <!-- Pantalla de Gestión -->
+    <div id="management-screen" class="container hidden">
+        <h1>Gestión de Reservas</h1>
+        <button id="logout-btn">Cerrar Sesión</button>
+
+        <!-- Registro de Salas -->
+        <h2>Registrar Sala</h2>
+        <form id="room-form">
+            <label for="room-name">Nombre del Sala:</label>
+            <input type="text" id="room-name" placeholder="Ej. Sala A" required>
+            <label for="room-materials">Materiales:</label>
+            <input type="text" id="room-materials" placeholder="Vidrio,Plástico,Porcelana,Metal,Material inventariable" required>
+            <button type="submit">Registrar Sala</button>
+        </form>
+        <h2>Lista de Salas</h2>
+        <ul id="room-list"></ul>
+
+        <!-- Reservas -->
+        <h2>Gestión de Laboratorios</h2>
+        <form id="reservation-form">
+            <label for="room">Sala:</label>
+            <select id="room" required></select>
+            <label for="date">Fecha:</label>
+            <input type="date" id="date" required>
+            <button type="submit">Añadir Reserva</button>
+        </form>
+        <h2>Lista de Reservas</h2>
+        <ul id="reservation-list"></ul>
+
+        <!-- Disponibilidad -->
+        <h2>Consultar Disponibilidad</h2>
+        <form id="availability-form">
+            <label for="availability-date">Fecha:</label>
+            <input type="date" id="availability-date" required>
+            <button type="submit">Consultar</button>
+        </form>
+        <h3>Salas Disponibles</h3>
+        <ul id="available-rooms-list"></ul>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
