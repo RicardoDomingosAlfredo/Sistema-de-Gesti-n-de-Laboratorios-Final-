@@ -1,0 +1,21 @@
+@startuml
+actor Cliente as C
+entity "Frontend (index.html)" as F
+entity "Frontend (script.js)" as JS
+entity "Servidor API (server.js)" as S
+database "MongoDB" as DB
+actor "Postman" as P
+
+C -> F : Cargar página
+F -> JS : Cargar scripts
+JS -> S : Enviar solicitud HTTP (GET, POST, PUT)
+S -> DB : Consultar/Modificar datos
+DB --> S : Responder con datos
+S --> JS : Responder con JSON
+JS --> C : Mostrar datos en la interfaz
+P -> S : Enviar solicitud API (GET, POST, PUT)
+S -> DB : Consultar/Modificar datos
+DB --> S : Responder con datos
+S --> P : Responder con JSON
+
+@enduml
