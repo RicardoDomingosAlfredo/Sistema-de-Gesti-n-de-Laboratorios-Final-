@@ -199,8 +199,8 @@ app.get('/items/protegidos', verifyToken, async (req, res) => {
     }
 });
 
-// Configuración de HTTPS (si tienes los archivos de certificado)
-const useHttps = false; // Cambia esto a `true` si tienes los certificados SSL
+
+const useHttps = false; // se puede cambiar esto a `true` si tienes los certificados SSL
 
 if (useHttps) {
     const options = {
